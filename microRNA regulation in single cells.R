@@ -93,15 +93,16 @@ meta_var_df <- data.frame(group=rep(group_size$mirna_expression, group_size$targ
                           level=c(level_background, level_LE_mirna, level_ME_mirna, level_HE_mirna),
                           noise=c(noise_background, noise_LE_mirna, noise_ME_mirna, noise_HE_mirna))
 
-p_df <- data.frame(x=c('background', 'background', 'background', 'LE', 'LE', 'ME'),            # group A
-                   y=c('LE', 'ME', 'HE', 'ME', 'HE', 'HE'),                                    # group B
-                   p_level=c(ks.test(level_background, level_LE_mirna)$p.value,                # statistical significance of difference between expression levels from any two groups
+# In this dataframe, each row contains names of two groups, statistical significance of difference between expression levels and noises from two groups. 
+p_df <- data.frame(x=c('background', 'background', 'background', 'LE', 'LE', 'ME'),       # group A
+                   y=c('LE', 'ME', 'HE', 'ME', 'HE', 'HE'),                               # group B
+                   p_level=c(ks.test(level_background, level_LE_mirna)$p.value,                
                              ks.test(level_background, level_ME_mirna)$p.value,
                              ks.test(level_background, level_HE_mirna)$p.value,
                              ks.test(level_LE_mirna, level_ME_mirna)$p.value,
                              ks.test(level_LE_mirna, level_HE_mirna)$p.value,
                              ks.test(level_ME_mirna, level_HE_mirna)$p.value),
-                   p_noise=c(ks.test(noise_background, noise_LE_mirna)$p.value,                # statistical significance of difference between expression noises from any two groups
+                   p_noise=c(ks.test(noise_background, noise_LE_mirna)$p.value,                
                              ks.test(noise_background, noise_ME_mirna)$p.value,
                              ks.test(noise_background, noise_HE_mirna)$p.value,
                              ks.test(noise_LE_mirna, noise_ME_mirna)$p.value,
