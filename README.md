@@ -1,6 +1,6 @@
 # README for sc-miReg
 
-This Github repository stores files for **Analysis of miRNA Regulation in Single Cells**, maintained by Wendao Liu([liuwd15@tsinghua.org.cn](liuwd15@tsinghua.org.cn)).
+This Github repository stores files for **Analysis of miRNA Regulation in Single Cells**, maintained by Wendao Liu (liuwd15@tsinghua.org.cn).
 
 The analysis workflow, along with all results, are shown in the [jupyter notebook](https://github.com/liuwd15/sc-miReg/blob/master/microRNA%20regulation%20in%20single%20cells.ipynb). **Please view this notebook first.**
 
