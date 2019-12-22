@@ -119,47 +119,111 @@ p_df <- data.frame(x=c('background', 'background', 'background', 'LE', 'LE', 'ME
 library(ggpubr)
 options(repr.plot.width=10, repr.plot.height=5)
 
-plot_ecdf <- ggplot(meta_var_df, aes(x=log10(level), color=group)) + 
-             stat_ecdf(geom = "step") + 
-             lims(x=quantile(log10(meta_var_df$level),c(0.01,0.99))) + 
-             labs(x=expression(log[10]~'Mean RPKM') ,y='Quantile', title="miRNA regulation on target mRNAs' expression levels") + 
-             scale_color_discrete(breaks=c('HE','ME','LE','background'), 
-                                  name='miRNA mean expression',
-                                  labels=expression(log[2]~fraction > -6, -9 < log[2]~fraction <= -6, -12 < log[2]~fraction <= -9, 'All expressed')) + 
-             theme_bw() + 
-             theme(legend.position=c(0.7,0.2), title=element_text(size=10))
+# Plot ECDFs and P-value heatmap for target mRNA' expression levels in different groups
+plot_exp_level <- function()
+{
+    plot_ecdf <- ggplot(meta_var_df, aes(x=log10(level), color=group)) + 
+                 stat_ecdf(geom = "step") + 
+                 lims(x=quantile(log10(meta_var_df$level),c(0.01,0.99))) + 
+                 labs(x=expression(log[10]~'Mean RPKM') ,y='Quantile', title="miRNA regulation on target mRNAs' expression levels") + 
+                 scale_color_discrete(breaks=c('HE','ME','LE','background'), 
+                                      name='miRNA mean expression',
+                                      labels=expression(log[2]~fraction > -6, -9 < log[2]~fraction <= -6, -12 < log[2]~fraction <= -9, 'All expressed')) + 
+                 theme_bw() + 
+                 theme(legend.position=c(0.7,0.2), title=element_text(size=10))
+
+    plot_p <- ggplot(p_df,aes(x=x,y=y)) + 
+              geom_raster(aes(fill = -log10(p_level))) + 
+              geom_text(aes(label = round(-log10(p_level),2)), size=7) + 
+              scale_fill_gradient(low = "white", high = "red") + 
+              scale_x_discrete(limits=c('background','LE','ME'), labels=expression('All expressed', -12 < log[2]~fraction <= -9, -9 < log[2]~fraction <= -6)) + 
+              scale_y_discrete(limits=c('LE','ME','HE'), labels=expression(-12 < log[2]~fraction <= -9, -9 < log[2]~fraction <= -6, log[2]~' fraction > -6')) +
+              labs(x='',y='',title=expression(-log[10]~'P value (KS-test)')) + 
+              theme(legend.position = 'none', axis.text = element_text(angle=30, hjust=1))
     
-plot_p <- ggplot(p_df,aes(x=x,y=y)) + 
-          geom_raster(aes(fill = -log10(p_level))) + 
-          geom_text(aes(label = round(-log10(p_level),2)), size=7) + 
-          scale_fill_gradient(low = "white", high = "red") + 
-          scale_x_discrete(limits=c('background','LE','ME'), labels=expression('All expressed', -12 < log[2]~fraction <= -9, -9 < log[2]~fraction <= -6)) + 
-          scale_y_discrete(limits=c('LE','ME','HE'), labels=expression(-12 < log[2]~fraction <= -9, -9 < log[2]~fraction <= -6, log[2]~' fraction > -6')) +
-          labs(x='',y='',title=expression(-log[10]~'P value (KS-test)')) + 
-          theme(legend.position = 'none', axis.text = element_text(angle=30, hjust=1))
-          
-ggarrange(plot_ecdf, plot_p)
+    ggarrange(plot_ecdf, plot_p)
+}          
 
-plot_ecdf <- ggplot(meta_var_df, aes(x=noise, color=group)) + 
-             stat_ecdf(geom = "step") + 
-             lims(x=quantile(meta_var_df$noise,c(0.01,0.99))) + 
-             labs(x='Residual SD RPKM' ,y='Quantile', title="miRNA regulation on target mRNAs' expression noises") + 
-             scale_color_discrete(breaks=c('HE','ME','LE','background'), 
-                                  name='miRNA mean expression',
-                                  labels=expression(log[2]~fraction > -6, -9 < log[2]~fraction <= -6, -12 < log[2]~fraction <= -9, 'All expressed')) +
-             theme_bw() + 
-             theme(legend.position=c(0.7,0.2), title=element_text(size=10))
+plot_exp_level()
 
-plot_p <- ggplot(p_df,aes(x=x,y=y)) + 
-          geom_raster(aes(fill = -log10(p_noise))) + 
-          geom_text(aes(label = round(-log10(p_noise),2)), size=7) + 
-          scale_fill_gradient(low = "white", high = "red") + 
-          scale_x_discrete(limits=c('background','LE','ME'), labels=expression('All expressed', -12 < log[2]~fraction <= -9, -9 < log[2]~fraction <= -6)) + 
-          scale_y_discrete(limits=c('LE','ME','HE'), labels=expression(-12 < log[2]~fraction <= -9, -9 < log[2]~fraction <= -6, log[2]~fraction > -6)) +
-          labs(x='',y='',title=expression(-log[10]~'P value (KS-test)')) + 
-          theme(legend.position = 'none', axis.text = element_text(angle=30, hjust=1))
-          
-ggarrange(plot_ecdf, plot_p)
+# Plot ECDFs and P-value heatmap for target mRNA' expression noises in different groups
+plot_exp_noise <- function()
+{
+    plot_ecdf <- ggplot(meta_var_df, aes(x=noise, color=group)) + 
+                 stat_ecdf(geom = "step") + 
+                 lims(x=quantile(meta_var_df$noise,c(0.01,0.99))) + 
+                 labs(x='Residual SD RPKM' ,y='Quantile', title="miRNA regulation on target mRNAs' expression noises") + 
+                 scale_color_discrete(breaks=c('HE','ME','LE','background'), 
+                                      name='miRNA mean expression',
+                                      labels=expression(log[2]~fraction > -6, -9 < log[2]~fraction <= -6, -12 < log[2]~fraction <= -9, 'All expressed')) +
+                 theme_bw() + 
+                 theme(legend.position=c(0.7,0.2), title=element_text(size=10))
+
+    plot_p <- ggplot(p_df,aes(x=x,y=y)) + 
+              geom_raster(aes(fill = -log10(p_noise))) + 
+              geom_text(aes(label = round(-log10(p_noise),2)), size=7) + 
+              scale_fill_gradient(low = "white", high = "red") + 
+              scale_x_discrete(limits=c('background','LE','ME'), labels=expression('All expressed', -12 < log[2]~fraction <= -9, -9 < log[2]~fraction <= -6)) + 
+              scale_y_discrete(limits=c('LE','ME','HE'), labels=expression(-12 < log[2]~fraction <= -9, -9 < log[2]~fraction <= -6, log[2]~fraction > -6)) +
+              labs(x='',y='',title=expression(-log[10]~'P value (KS-test)')) + 
+              theme(legend.position = 'none', axis.text = element_text(angle=30, hjust=1))
+
+    ggarrange(plot_ecdf, plot_p)
+}
+
+plot_exp_noise()
+
+# Get target mRNA names in different groups
+gene_background <- mir2meta_var(mirna[mirna_mean > min_expression & mirna_mean <= -12, 1], 'gene')
+gene_LE_mirna <- mir2meta_var(mirna[mirna_mean > -12 & mirna_mean <= -9, 1], 'gene')
+gene_ME_mirna <- mir2meta_var(mirna[mirna_mean > -9 & mirna_mean <= -6, 1], 'gene')
+gene_HE_mirna <- mir2meta_var(mirna[mirna_mean > -6, 1], 'gene')
+
+# Remove mRNAs in lower expression groups that are also present in higher expression groups.
+retain_ME <- !gene_ME_mirna %in% gene_HE_mirna
+retain_LE <- !gene_LE_mirna %in% gene_ME_mirna & !gene_LE_mirna %in% gene_HE_mirna
+retain_background <- !gene_background %in% gene_ME_mirna & !gene_background %in% gene_HE_mirna & !gene_background %in% gene_LE_mirna
+
+level_ME_mirna <- level_ME_mirna[retain_ME]
+level_LE_mirna <- level_LE_mirna[retain_LE]
+level_background <- level_background[retain_background]
+
+noise_ME_mirna <- noise_ME_mirna[retain_ME]
+noise_LE_mirna <- noise_LE_mirna[retain_LE]
+noise_background <- noise_background[retain_background]
+
+# In this dataframe, each row contains the name of a group, the number of miRNA and the number of target mRNA in the group. 
+group_size <- data.frame(mirna_expression=c('background','LE','ME','HE'), 
+                         mirna_number=c(sum(mirna_mean > min_expression & mirna_mean <= -12), sum(mirna_mean > -12 & mirna_mean <= -9), sum(mirna_mean > -9 & mirna_mean <= -6), sum(mirna_mean > -6)),
+                         target_number=c(length(level_background), length(level_LE_mirna), length(level_ME_mirna), length(level_HE_mirna)))
+group_size
+
+# In this dataframe, each row contains the group of a target mRNA, its expression level and expression noise. 
+meta_var_df <- data.frame(group=rep(group_size$mirna_expression, group_size$target_number),
+                          level=c(level_background, level_LE_mirna, level_ME_mirna, level_HE_mirna),
+                          noise=c(noise_background, noise_LE_mirna, noise_ME_mirna, noise_HE_mirna))
+
+# In this dataframe, each row contains names of two groups, statistical significance of difference between expression levels and noises from two groups. 
+p_df <- data.frame(x=c('background', 'background', 'background', 'LE', 'LE', 'ME'),       # group A
+                   y=c('LE', 'ME', 'HE', 'ME', 'HE', 'HE'),                               # group B
+                   p_level=c(ks.test(level_background, level_LE_mirna)$p.value,                
+                             ks.test(level_background, level_ME_mirna)$p.value,
+                             ks.test(level_background, level_HE_mirna)$p.value,
+                             ks.test(level_LE_mirna, level_ME_mirna)$p.value,
+                             ks.test(level_LE_mirna, level_HE_mirna)$p.value,
+                             ks.test(level_ME_mirna, level_HE_mirna)$p.value),
+                   p_noise=c(ks.test(noise_background, noise_LE_mirna)$p.value,                
+                             ks.test(noise_background, noise_ME_mirna)$p.value,
+                             ks.test(noise_background, noise_HE_mirna)$p.value,
+                             ks.test(noise_LE_mirna, noise_ME_mirna)$p.value,
+                             ks.test(noise_LE_mirna, noise_HE_mirna)$p.value,
+                             ks.test(noise_ME_mirna, noise_HE_mirna)$p.value))
+
+kruskal.test(level ~ group, data = meta_var_df) 
+kruskal.test(noise ~ group, data = meta_var_df) 
+
+plot_exp_level()
+plot_exp_noise()
 
 # Read DCA output
 mrna_dca <- read.table('GSE114071_DCA.tsv', header=T, stringsAsFactors=F, row.names = NULL)
@@ -204,10 +268,10 @@ plot_right <- ggplot(meta, aes(x=log10(mean_rpkm), y=rsd_rpkm)) +
 ggarrange(plot_left, plot_right)
 
 # Get expression levels (mean DCA normalized counts) in different groups
-noise_background <- mir2meta_var(mirna[mirna_mean > min_expression & mirna_mean <= -12, 1], 'mean_dca')
-noise_LE_mirna <- mir2meta_var(mirna[mirna_mean > -12 & mirna_mean <= -9, 1], 'mean_dca')
-noise_ME_mirna <- mir2meta_var(mirna[mirna_mean > -9 & mirna_mean <= -6, 1], 'mean_dca')
-noise_HE_mirna <- mir2meta_var(mirna[mirna_mean > -6, 1], 'mean_dca')
+level_background <- mir2meta_var(mirna[mirna_mean > min_expression & mirna_mean <= -12, 1], 'mean_dca')
+level_LE_mirna <- mir2meta_var(mirna[mirna_mean > -12 & mirna_mean <= -9, 1], 'mean_dca')
+level_ME_mirna <- mir2meta_var(mirna[mirna_mean > -9 & mirna_mean <= -6, 1], 'mean_dca')
+level_HE_mirna <- mir2meta_var(mirna[mirna_mean > -6, 1], 'mean_dca')
 
 # Get expression noises (RCV DCA normalized counts) in different groups
 noise_background <- mir2meta_var(mirna[mirna_mean > min_expression & mirna_mean <= -12, 1], 'rsd_dca')
@@ -282,7 +346,7 @@ plot_p <- ggplot(p_df,aes(x=x,y=y)) +
           scale_y_discrete(limits=c('LE','ME','HE'), labels=expression(-12 < log[2]~fraction <= -9, -9 < log[2]~fraction <= -6, log[2]~fraction > -6)) +
           labs(x='',y='',title=expression(-log[10]~'P value (KS-test)')) + 
           theme(legend.position = 'none', axis.text = element_text(angle=30, hjust=1))
-          
+
 ggarrange(plot_ecdf, plot_p)
 
 sessionInfo()
